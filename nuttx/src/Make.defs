@@ -20,6 +20,4 @@
 
 ifneq ($(CONFIG_APPLICATION_ENGINE_SPEED),)
 CONFIGURED_APPS += $(APPDIR)/EngineSpeed/src
-EXTRA_LIBS += "$(TOPDIR)/3rparty/libgsl.a "
-EXTRA_LIBS += "$(TOPDIR)/3rparty/libgslcblas.a "
 endif

@@ -45,6 +45,6 @@ struct imu_msg_float {
  * Public Functions
  ****************************************************************************/
 
-void read_imu(int fd, struct imu_msg *imu_data);
+void read_imu(int fd, struct imu_msg_float *imu_data);
 
 #endif  // SRC_SENSOR_OPS_H

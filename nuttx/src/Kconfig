@@ -11,7 +11,7 @@ config APPLICATION_ENGINE_SPEED
 if APPLICATION_ENGINE_SPEED
 
 config APPLICATION_ENGINE_SPEED_PROGNAME
-    string "Engine Speed"
+    string "Application name"
     default "speed"
     ---help---
         Runs the real-time engine speed estimation using IMU data.
