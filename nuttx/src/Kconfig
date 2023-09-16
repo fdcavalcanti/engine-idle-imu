@@ -1,0 +1,35 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+
+config APPLICATION_ENGINE_SPEED
+    tristate "Engine Speed estimation using IMU"
+    default n
+    ---help---
+        Enable engine speed application.
+
+if APPLICATION_ENGINE_SPEED
+
+config APPLICATION_ENGINE_SPEED_PROGNAME
+    string "Engine Speed"
+    default "speed"
+    ---help---
+        Runs the real-time engine speed estimation using IMU data.
+
+config APPLICATION_ENGINE_SPEED_AFS_SEL
+    int "Accelerometer sensitivity (AFS_SEL)"
+    default 8192
+
+config APPLICATION_ENGINE_SPEED_SAMPLE_RATE_MS
+    int "IMU sample rate in milliseconds"
+    default 100
+
+config APPLICATION_ENGINE_SPEED_PRIORITY
+    int "Application priority"
+    default 100
+
+config APPLICATION_ENGINE_SPEED_STACKSIZE
+    int "Task stack size"
+    default DEFAULT_TASK_STACKSIZE
+
+endif
