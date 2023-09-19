@@ -50,6 +50,13 @@ int main(int argc, FAR char *argv[]) {
   int counter = 0;
   float peak_frequency = -1;
 
+  /* Allocate the GSL vector to calculate FFT */
+
+  gsl_vector* acc_x_vector = gsl_vector_calloc(PREDICTION_VECTOR_LENGTH);
+  gsl_vector* fft_abs_vector = gsl_vector_calloc(PREDICTION_VECTOR_LENGTH / 2);
+  printf("Accelerometer vector size: %d \n", acc_x_vector->size);
+  printf("FFT Absolute vector size: %d \n", fft_abs_vector->size);
+
   /* Open the IMU device driver */
 
   int fd = open("/dev/imu0", O_RDWR);
@@ -58,30 +65,31 @@ int main(int argc, FAR char *argv[]) {
       printf("Failed to open IMU\n");
       return EXIT_FAILURE;
     }
-
-  /* Allocate the GSL vector to calculate FFT */
-
-  gsl_vector* acc_x_vector = gsl_vector_calloc(PREDICTION_VECTOR_LENGTH);
-  gsl_vector* fft_abs_vector = gsl_vector_calloc(PREDICTION_VECTOR_LENGTH);
+  ioctl(fd, SNIOC_SET_AFS_SEL, 1);
+  printf("IMU open: AFS_SEL = %d\n", CONFIG_APPLICATION_ENGINE_SPEED_AFS_SEL);
 
   while (1)
     {
       read_imu(fd, &acc_msg);
       gsl_vector_set(acc_x_vector, counter, acc_msg.acc_x);
       counter++;
-      if (counter == PREDICTION_VECTOR_LENGTH - 1)
+
+      if (counter == PREDICTION_VECTOR_LENGTH)
       {
         counter = 0;
         fft(acc_x_vector, fft_abs_vector);
-        peak_frequency = gsl_stats_max(fft_abs_vector->data, 1, PREDICTION_VECTOR_LENGTH);
-        printf("Frequency peak [Hz]: %f\n", peak_frequency);
+        peak_frequency = gsl_stats_max_index(
+                          fft_abs_vector->data,
+                          1,
+                          PREDICTION_VECTOR_LENGTH / 2);
+        printf("Frequency peak index: %.2f\n", peak_frequency);
       }
+
+      usleep(10000);
     }
 }
 
-
 int fft(gsl_vector* acc_data, gsl_vector* fft_abs_vector) {
-    // Copy the input data because of inplace operations
     float mean = gsl_stats_mean(acc_data->data, 1, acc_data->size);
     float scale = 1.0/(acc_data->size);
 
@@ -89,12 +97,13 @@ int fft(gsl_vector* acc_data, gsl_vector* fft_abs_vector) {
     gsl_fft_real_radix2_transform(acc_data->data, 1, acc_data->size);
     gsl_vector_scale(acc_data, scale);
 
-    for (size_t i=0; i < fft_abs_vector->size; i++) {
-        float real, imag, absolute;
-        real = acc_data->data[i];
-        imag = acc_data->data[acc_data->size - i];
-        absolute = sqrt(real*real + imag*imag);
-        gsl_vector_set(fft_abs_vector, i, 2*absolute);
+    for (size_t i=0; i < fft_abs_vector->size; i++)
+    {
+      float real, imag, absolute;
+      real = acc_data->data[i];
+      imag = acc_data->data[acc_data->size - i];
+      absolute = sqrt(real*real + imag*imag);
+      gsl_vector_set(fft_abs_vector, i, 2*absolute);
     }
 
     return 0;

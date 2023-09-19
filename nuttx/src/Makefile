@@ -10,6 +10,6 @@ GSL_DIR = "gsl-2.7"
 MAINSRC = engine_speed.c
 CSRCS = sensor_ops.c
 
-CFLAGS += "-I$(GSL_DIR)"
+CFLAGS += -I$(GSL_DIR)
 
 include $(APPDIR)/Application.mk
