@@ -23,18 +23,6 @@
 #define PREDICTION_VECTOR_LENGTH 128
 
 /****************************************************************************
- * Private Types
- ****************************************************************************/
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
-
-/****************************************************************************
- * Public Data
- ****************************************************************************/
-
-/****************************************************************************
  * Private Functions
  ****************************************************************************/
 
@@ -82,13 +70,15 @@ int main(int argc, FAR char *argv[]) {
                           fft_abs_vector->data,
                           1,
                           PREDICTION_VECTOR_LENGTH / 2);
-        printf("Frequency peak index: %.2f\n", peak_frequency);
+        printf("Frequency peak [Hz]: %.2f\n", peak_frequency);
       }
 
       usleep(10000);
     }
 }
 
+/* Calculate FFT from accelerometer data acc_data and save */
+/* output values on fft_abs_vector. */
 int fft(gsl_vector* acc_data, gsl_vector* fft_abs_vector) {
     float mean = gsl_stats_mean(acc_data->data, 1, acc_data->size);
     float scale = 1.0/(acc_data->size);
